@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: Spring-Project
+  config:
+    import: optional:file:.env[.properties]
+  cache:
+    type: redis
+    cache-names: redis-cache
+  devtools:
+    restart:
+      enabled: "true"
+      poll-interval: "2s"
+      quiet-period: "1s"
+      additional-paths:
+        - src/
+  output:
+    ansi:
+      enabled: ALWAYS
+  thymeleaf:
+    cache: "false"
+    prefix: file:src/main/resources/templates/
+  web:
+    resources:
+      static-locations: file:src/main/resources/static/, classpath:/static/
+      cache:
+        period: 0
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:5432/${POSTGRES_DATABASE}?currentSchema=${POSTGRES_SCHEMA}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:liquibase/db.changelog.yaml
+    enabled: true
+    default-schema: ${POSTGRES_SCHEMA}
+  graphql:
+    graphiql:
+      enabled: true
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        debug: false
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  security:
+    user:
+      name: anis
+      password: anis
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
+
+app:
+  jwt:
+    key: 7qbq6zTyZ8bC3dA2wS7gN1mK9jF0hL4tUoP6iBvE3nG8xZaQrY7cW2fA # according to SHA-256 requirements
+    algorithm: HS256
+    issuer: ${API_URL}
+    expiresIn: 1m
+springdoc:
+  override-with-generic-response: true
+  api-docs:
+    path: "/api-docs"
+    enabled: true
+    version: openapi-3-1
+  swagger-ui:
+    path: "/swagger-ui.html"
+    use-root-path: true
+
+logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wex"
+
+token:
+  signing:
+    key: ${JWT_SECRET}
+management:
+  endpoint:
+    refresh:
+      enabled: true
+    restart:
+      enabled: false
+    health:
+      enabled: true
+    info:
+      enabled: true
+    web:
+      exposure:
+        include: info,health,refresh

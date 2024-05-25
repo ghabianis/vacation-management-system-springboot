@@ -1,0 +1,11 @@
+type User {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime
+  deletedAt: DateTime
+  firstName: String
+  lastName: String
+  username: String! @unique
+  roles: [String!]!
+}
+

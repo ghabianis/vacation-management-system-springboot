@@ -1,0 +1,77 @@
+version: "3.8"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  cache:
+    driver: local
+  db-data:
+    driver: local
+  postgres: ~
+
+services:
+  server:
+    profiles: ["dev"]
+    restart: always
+    build:
+      context: .
+    container_name: server
+    networks:
+      - app-network
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
+    ports:
+      - "8080:8080"
+
+  db:
+    profiles: ["prod", "dev"]
+    image: postgres:15.1-alpine
+    container_name: postgres
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    profiles: ["prod", "dev"]
+    image: dpage/pgadmin4
+    networks:
+      - app-network
+    depends_on:
+      - db
+    ports:
+      - "53603:53603"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
+      PGADMIN_LISTEN_PORT: 53603
+    restart: unless-stopped
+
+  redis:
+    profiles: ["prod", "dev"]
+    image: redis:7.2-rc-alpine
+    restart: always
+    container_name: redis
+    networks:
+      - app-network
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel debug --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache:/data
+ 
