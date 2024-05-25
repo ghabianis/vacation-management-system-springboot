@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Leave Management</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="#">
     <style>
         body {
             background-color: #f8f9fa;
@@ -14,7 +15,7 @@
         }
 
         .navbar {
-            background-color: #343a40;
+            background: linear-gradient(90deg, #343a40, #454d55);
             padding: 10px 0;
         }
 
@@ -29,38 +30,182 @@
             font-size: 1.2rem;
         }
 
-        .center-container {
+        .container {
             margin-top: 100px;
-            text-align: center;
         }
 
-        .icon {
-            font-size: 2rem;
-            margin-right: 10px;
+        .center-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .leave-history {
+            margin-top: 50px;
+        }
+
+        .leave-history .card {
+            margin: 10px 0;
+        }
+
+        .SOLLICITE {
+            background-color: lightblue;
+        }
+
+        .VALIDE {
+            background-color: lightgreen;
+        }
+
+        .REFUSE {
+            background-color: lightcoral;
+        }
+
+        .ANNULE {
+            background-color: lightgrey;
+        }
+
+        .EN_COURS {
+            background-color: lightyellow;
+        }
+
+        .ARRETE {
+            background-color: orange;
+        }
+
+        .FINI {
+            background-color: lightgoldenrodyellow;
         }
 
         footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            margin-top: 50px;
             background-color: #343a40;
             color: white;
             text-align: center;
             padding: 10px 0;
         }
+
+        .form-card {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('username').textContent = `${user.firstName} ${user.lastName}`;
+            }
+
+            // Dummy data for leaves
+            const leaves = [
+                { id: 1, description: "Vacation", dateDebut: "2024-06-01", dateFin: "2024-06-10", etat: "SOLLICITE" },
+                { id: 2, description: "Medical Leave", dateDebut: "2024-04-05", dateFin: "2024-04-15", etat: "VALIDE" },
+                { id: 3, description: "Family Leave", dateDebut: "2024-02-10", dateFin: "2024-02-20", etat: "FINI" }
+            ];
+
+            const leaveContainer = document.getElementById('leaveHistory');
+            leaves.forEach(leave => {
+                const card = document.createElement('div');
+                card.className = `card ${leave.etat}`;
+                card.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">${leave.description}</h5>
+                        <p class="card-text">Start: ${leave.dateDebut} | End: ${leave.dateFin}</p>
+                        <p class="card-text">Status: ${leave.etat}</p>
+                        ${leave.etat === 'SOLLICITE' ? `<button class="btn btn-danger" onclick="cancelLeave(${leave.id})">Cancel</button>` : ''}
+                    </div>
+                `;
+                leaveContainer.appendChild(card);
+            });
+
+            document.getElementById('leaveFilter').addEventListener('change', filterLeaves);
+        });
+
+        function filterLeaves() {
+            const filter = document.getElementById('leaveFilter').value;
+            const cards = document.querySelectorAll('.leave-history .card');
+            cards.forEach(card => {
+                if (filter === 'ALL' || card.classList.contains(filter)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function cancelLeave(id) {
+            // Logic to cancel the leave with the given id
+            alert(`Leave with ID ${id} has been canceled.`);
+        }
+
+        async function requestLeave() {
+            const description = document.getElementById('leaveDescription').value;
+            const startDate = document.getElementById('leaveStartDate').value;
+            const endDate = document.getElementById('leaveEndDate').value;
+            const user = JSON.parse(localStorage.getItem('user'));
+            const dateRepture = document.getElementById('dateRepture').value;;
+            // Basic validation
+            if (!description || !startDate || !endDate) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const leaveData = {
+                description: description,
+                dateDebut: startDate,
+                dateFin: endDate,
+                user: { id: user.id },
+                dateRupture: dateRepture,
+                etat: 'SOLLICITE'
+            };
+
+            console.log(leaveData)
+
+            try {
+                const response = await fetch('/conge/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(leaveData)
+                });
+
+                if (response.ok) {
+                    alert('Leave requested successfully!');
+                    // Optionally, refresh the leave history or update the UI
+                } else {
+                    alert('Failed to request leave.');
+                }
+            } catch (error) {
+                console.error('Error requesting leave:', error);
+                alert('An error occurred while requesting leave.');
+            }
+        }
+        function logout() {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("user");
+            window.location.href = "/signin";
+        }
+    </script>
 </head>
 
 <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top">
-        <a class="navbar-brand" href="#">Admin Dashboard</a>
+        <a class="navbar-brand" href="#">Leave Management</a>
         <div class="collapse navbar-collapse justify-content-end">
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" href="#">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Users</a>
+                    <a class="nav-link" href="#">Leaves</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
@@ -68,7 +213,7 @@
                         Settings
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="/profile">Profile</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Change Password</a>
                         <a class="dropdown-item" onclick="logout()">Logout</a>
@@ -80,21 +225,52 @@
 
     <div class="container">
         <div class="center-container">
-            <h1>Welcome to the Admin Dashboard</h1>
-            <p>Manage your website with ease</p>
+            <h1>Leave Management</h1>
+            <h3>Welcome, <span id="username">User</span>👋</h3>
+        </div>
+
+        <div class="mt-5 form-card">
+            <h2>Request Leave</h2>
+            <form onsubmit="event.preventDefault(); requestLeave();">
+                <div class="form-group">
+                    <label for="leaveDescription">Description</label>
+                    <input type="text" class="form-control" id="leaveDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="leaveStartDate">Start Date</label>
+                    <input type="date" class="form-control" id="leaveStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="leaveEndDate">End Date</label>
+                    <input type="date" class="form-control" id="leaveEndDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="dateRepture">Date Repture</label>
+                    <input type="date" class="form-control" id="dateRepture" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Request Leave</button>
+            </form>
+        </div>
+
+        <div class="leave-history">
+            <h2>Leave History</h2>
+            <select id="leaveFilter" class="form-control mb-3">
+                <option value="ALL">All</option>
+                <option value="SOLLICITE">SOLLICITE</option>
+                <option value="VALIDE">VALIDE</option>
+                <option value="REFUSE">REFUSE</option>
+                <option value="ANNULE">ANNULE</option>
+                <option value="EN_COURS">EN_COURS</option>
+                <option value="ARRETE">ARRETE</option>
+                <option value="FINI">FINI</option>
+            </select>
+            <div id="leaveHistory"></div>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2024 Anis Ghabi All rights reserved.</p>
+        <p>&copy; 2024 Anis Ghabi. All rights reserved.</p>
     </footer>
-    <script>
-        function logout(){
-            localStorage.removeItem("accessToken")
-            localStorage.removeItem("user")
-            window.location.href = "/login"
-        }
-    </script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

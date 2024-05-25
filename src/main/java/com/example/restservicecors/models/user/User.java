@@ -1,16 +1,23 @@
 package com.example.restservicecors.models.user;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
+import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.example.restservicecors.models.Conge.Conge;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,10 +38,10 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false, unique = true)
     private String id;
 
-    @Column(name = "\"firstName\"", nullable = false)
+    @Column(name = "\"firstName\"", nullable = false, columnDefinition = "VARCHAR(50)")
     private String firstName;
 
-    @Column(name = "\"lastName\"", nullable = false)
+    @Column(name = "\"lastName\"", nullable = false, columnDefinition = "VARCHAR(50)")
     private String lastName;
 
     @Column(nullable = false, unique = true)
@@ -42,6 +49,10 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(name = "code", columnDefinition = "VARCHAR(255)", unique = true)
+    @Unique
+    private String code;
 
     @Column(name = "roles", columnDefinition = "VARCHAR(255)[]")
     private Set<String> roles;
@@ -55,6 +66,22 @@ public class User {
     private LocalDateTime updatedAt;
     @Column(name = "\"deletedAt\"")
     private LocalDateTime deletedAt;
+
+    @Column(name = "\"dateEmbauchement\"")
+    private LocalDateTime dateEmbauchement;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Conge> conges;
+
+    public void addConge(Conge conge) {
+        conges.add(conge);
+        conge.setUser(this);
+    }
+
+    public void removeConge(Conge conge) {
+        conges.remove(conge);
+        conge.setUser(null);
+    }
 
     public String getId() {
         return id;
@@ -90,5 +117,21 @@ public class User {
 
     public LocalDateTime getDeletedAT() {
         return deletedAt;
+    }
+
+    public LocalDateTime getDateEmbauchement() {
+        return dateEmbauchement;
+    }
+
+    public void setDateEmbauchement(LocalDateTime dateEmbauchement) {
+        this.dateEmbauchement = dateEmbauchement;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

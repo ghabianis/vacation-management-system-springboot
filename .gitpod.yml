@@ -7,5 +7,7 @@ vscode:
 tasks:
   - name: install dependencies and setup process
     command: |
-      docker-compose build
-      docker-compose up -d
+      cp .env.example .env
+      echo "API_URL=$(gp url 8080)" >> .env
+      docker-compose --profile dev build
+      docker-compose --profile dev up -d

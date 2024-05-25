@@ -19,7 +19,6 @@ import net.sf.jsqlparser.Model;
 @SpringBootApplication
 @Controller
 public class RestServiceCorsApplication {
-
 	@GetMapping("/")
 	public String index(final Model model) {
 		return "signin";
@@ -47,9 +46,10 @@ public class RestServiceCorsApplication {
 
 	@Bean
 	public OpenAPI openapi() {
+		String api_url = System.getenv("API_URL");
 		// Define the server URL using HTTPS
 		Server server = new Server()
-				.url("http://localhost:8080")
+				.url(api_url)
 				.description("HTTPS server");
 
 		return new OpenAPI()

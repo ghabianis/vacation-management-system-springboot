@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
 <head>
     <title>Spring Security Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" th:href="@{/images/favicon.ico}">
+    <link rel="shortcut icon" href="#">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -95,6 +96,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <h2>Login</h2>
@@ -103,7 +105,7 @@
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">User Name:</label>
-                <input type="text" id="username"  autofocus="autofocus" required>
+                <input type="text" id="username" autofocus="autofocus" required>
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
@@ -112,8 +114,8 @@
                     <span class="password-toggle" onclick="togglePasswordVisibility()">&#128065;</span>
                 </div>
             </div>
-            <button type="submit" value="Submit" class="btn-submit">Sign In</button>
-            <a class="signup-link" onclick="submitLoginForm()">Don't have an account? Sign Up</a>
+            <button type="button" class="btn-submit" onclick="submitLoginForm()">Sign In</button>
+            <a class="signup-link" href="/signup">Don't have an account? Sign Up</a>
         </form>
     </div>
     <script>
@@ -133,43 +135,45 @@
     <script>
         function submitLoginForm() {
             var formData = {
-                username: document.getElementById("username").value,
+                email: document.getElementById("username").value,
                 password: document.getElementById("password").value
             };
-    
-            fetch('http://localhost:8080/api/v1/auth/signin', {
+
+            fetch('/api/v1/auth/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(formData)
             })
-            .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+                .then(response => {
+                    if (!response.ok) {
+                        document.querySelector('.error-message').innerText = 'Network response was not ok';
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    // check if there is an access token in the response
+                    if (data.access_token) {
+                        // store access token in local storage
+                        localStorage.setItem('accessToken', data.access_token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        window.location.href = "/home"
+                        // redirect or do something else to handle successful signup
+                    } else {
+                        // handle signup error
+                        const errorMessage = data.error || 'Signup error';
+                        document.querySelector('.error-message').innerText = errorMessage;
+                    }
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                    // handle error
+                });
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data);
-        // check if there is an access token in the response
-        if (data.access_token) {
-            // store access token in local storage
-            localStorage.setItem('accessToken', data.access_token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            window.location.href = "/home"
-            // redirect or do something else to handle successful signup
-                } else {
-                    // handle signup error
-                    const errorMessage = data.error || 'Signup error';
-                    document.querySelector('.error-message').innerText = errorMessage;
-                }
-            })
-            .catch(error => {
-                console.error('There has been a problem with your fetch operation:', error);
-                // handle error
-         });
-    }
     </script>
 </body>
+
 </html>

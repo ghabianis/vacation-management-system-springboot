@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
 <head>
     <title>Spring Security Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -94,6 +96,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="signup-container">
         <h2>Sign Up</h2>
@@ -119,7 +122,7 @@
                 </div>
             </div>
             <button type="button" class="btn-submit" onclick="submitSignUpForm()">Sign Up</button>
-            <a href="/login" class="login-link">Already have an account? Login</a>
+            <a href="/signin" class="login-link">Already have an account? Login</a>
         </form>
     </div>
 
@@ -137,49 +140,50 @@
             }
         }
     </script>
-     <script>
-function submitSignUpForm() {
-    var formData = {
-        firstName: document.getElementById("firstName").value,
-        lastName: document.getElementById("lastName").value,
-        email: document.getElementById("email").value,
-        password: document.getElementById("password").value
-    };
+    <script>
+        function submitSignUpForm() {
+            var formData = {
+                firstName: document.getElementById("firstName").value,
+                lastName: document.getElementById("lastName").value,
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value
+            };
 
-    fetch('http://localhost:8080/api/v1/auth/signup', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+            fetch('/api/v1/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    // check if there is an access token in the response
+                    if (data.access_token) {
+                        // store access token in local storage
+                        localStorage.setItem('accessToken', data.access_token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        window.location.href = "/home"
+                        // redirect or do something else to handle successful signup
+                    } else {
+                        // handle signup error
+                        const errorMessage = data.error || 'Signup error';
+                        document.querySelector('.error-message').innerText = errorMessage;
+                    }
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                    // handle error
+                });
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data);
-        // check if there is an access token in the response
-        if (data.access_token) {
-            // store access token in local storage
-            localStorage.setItem('accessToken', data.access_token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            window.location.href = "/home"
-            // redirect or do something else to handle successful signup
-        } else {
-            // handle signup error
-            const errorMessage = data.error || 'Signup error';
-            document.querySelector('.error-message').innerText = errorMessage;
-        }
-    })
-    .catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
-        // handle error
-    });
-}
 
     </script>
 </body>
+
 </html>
