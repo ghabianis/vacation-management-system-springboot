@@ -1,0 +1,11 @@
+image: gitpod/workspace-full:2024-02-19-11-51-41
+vscode:
+  extensions:
+    - "dbaeumer.vscode-eslint"
+    - "ms-azuretools.vscode-docker"
+
+tasks:
+  - name: install dependencies and setup process
+    command: |
+      docker-compose build
+      docker-compose up -d
