@@ -8,7 +8,7 @@ public interface CongeService {
 
     Conge getById(final String id);
 
-    Conge getByNamConge(final String name);
+    Conge getByName(final String name);
 
     List<Conge> findAll();
 

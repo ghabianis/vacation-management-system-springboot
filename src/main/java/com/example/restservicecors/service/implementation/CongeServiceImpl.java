@@ -1,58 +1,69 @@
 package com.example.restservicecors.service.implementation;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.restservicecors.models.Conge.Conge;
 import com.example.restservicecors.service.CongeService;
 import com.example.restservicecors.service.respositories.CongeRepository;
 
 @Service
-@Transactional
 public class CongeServiceImpl implements CongeService {
 
     private final CongeRepository congeRepository;
 
     @Autowired
-    public CongeServiceImpl(CongeRepository congeRepository) throws Exception {
+    public CongeServiceImpl(CongeRepository congeRepository) {
         this.congeRepository = congeRepository;
     }
 
     @Override
     public Conge getById(String id) {
-        Conge result = congeRepository.getById(id);
-        return result;
+        Optional<Conge> conge = congeRepository.findById(id);
+        return conge.orElseThrow(() -> new IllegalArgumentException("Invalid conge Id: " + id));
     }
 
     @Override
-    public Conge getByNamConge(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getByNamConge'");
+    public Conge getByName(String name) {
+        // Implement the logic to find Conge by name if you have such a method in your
+        // repository
+        // Example: return congeRepository.findByName(name);
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public List<Conge> findAll() {
-        List<Conge> listConge = congeRepository.findAll();
-        return listConge;
+        return congeRepository.findAll();
     }
 
     @Override
     public Conge save(Conge conge) {
+        if (conge.getEtat() == null) {
+            conge.setEtat(Conge.Etat.SOLLICITE);
+        }
         return congeRepository.save(conge);
     }
 
     @Override
     public Conge update(Conge conge, String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        Optional<Conge> existingConge = congeRepository.findById(id);
+        if (existingConge.isPresent()) {
+            Conge updatedConge = existingConge.get();
+            updatedConge.setDescription(conge.getDescription());
+            updatedConge.setEtat(conge.getEtat());
+            // Do not update dateDebut and dateFin
+            return congeRepository.save(updatedConge);
+        } else {
+            throw new IllegalArgumentException("Invalid conge Id: " + id);
+        }
     }
 
     @Override
     public void delete(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        Conge conge = getById(id);
+        congeRepository.delete(conge);
     }
 }

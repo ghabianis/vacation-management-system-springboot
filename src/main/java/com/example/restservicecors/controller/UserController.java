@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restservicecors.dto.user.UserDto;
+import com.example.restservicecors.models.Conge.Conge;
 import com.example.restservicecors.models.user.User;
+import com.example.restservicecors.service.CongeService;
 import com.example.restservicecors.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,9 +34,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 public class UserController {
 
         private final UserService userService;
+        private final CongeService congeService;
 
-        public UserController(UserService userService) {
+        public UserController(UserService userService, CongeService congeService) {
                 this.userService = userService;
+                this.congeService = congeService;
         }
 
         @PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -70,6 +74,16 @@ public class UserController {
         @PreAuthorize("hasRole('user')")
         public List<User> findAll() {
                 return userService.findAll();
+        }
+
+        @GetMapping(value = "/all/conges", produces = MediaType.APPLICATION_JSON_VALUE)
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "User created successfully", content = {}),
+                        @ApiResponse(responseCode = "500", description = "Internal server error", content = {
+                                        @Content(schema = @Schema(implementation = ErrorResponse.class)) }) })
+        @QueryMapping(name = "all conges")
+        public List<Conge> findAllConges() {
+                return congeService.findAll();
         }
 
         @GetMapping(value = "/{id}/user", produces = MediaType.APPLICATION_JSON_VALUE)

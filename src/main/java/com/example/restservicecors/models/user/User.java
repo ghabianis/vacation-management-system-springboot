@@ -10,6 +10,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.example.restservicecors.models.Conge.Conge;
+import com.example.restservicecors.serializers.UserSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -30,6 +32,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "\"User\"", schema = "public")
 @Data
+@JsonSerialize(using = UserSerializer.class)
 public class User {
 
     @Id
@@ -75,7 +78,7 @@ public class User {
 
     public void addConge(Conge conge) {
         conges.add(conge);
-        conge.setUser(this);
+        conge.setUser(conge.getUser());
     }
 
     public void removeConge(Conge conge) {
@@ -133,5 +136,22 @@ public class User {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", code='" + code + '\'' +
+                ", roles=" + roles +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", deletedAt=" + deletedAt +
+                ", dateEmbauchement=" + dateEmbauchement +
+                '}';
     }
 }

@@ -1,11 +1,17 @@
 package com.example.restservicecors.controller;
 
+import java.util.List;
+
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.restservicecors.models.Conge.Conge;
 import com.example.restservicecors.payload.request.SignUpRequest;
 import com.example.restservicecors.payload.request.SigninRequest;
 import com.example.restservicecors.payload.response.JwtAuthenticationResponse;
@@ -28,4 +34,5 @@ public class AuthenticationController {
     public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SigninRequest request) {
         return ResponseEntity.ok(authenticationService.signin(request));
     }
+
 }

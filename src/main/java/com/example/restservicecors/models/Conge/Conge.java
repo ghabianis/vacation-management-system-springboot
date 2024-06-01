@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.example.restservicecors.models.user.User;
+import com.example.restservicecors.serializers.CongeSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,8 +29,10 @@ import lombok.Data;
  */
 @Entity
 @Builder
+
 @Table(name = "\"Conge\"", schema = "public")
 @Data
+@JsonSerialize(using = CongeSerializer.class)
 public class Conge {
     public enum Etat {
         SOLLICITE, VALIDE, REFUSE, ANNULE, EN_COURS, ARRETE, FINI
@@ -61,6 +65,22 @@ public class Conge {
     @Enumerated(EnumType.STRING)
     @Column(name = "etat", nullable = false)
     private Etat etat;
+
+    // Default constructor
+    public Conge() {
+    }
+
+    // Parameterized constructor
+    public Conge(String id, String description, LocalDateTime dateDebut, LocalDateTime dateFin, User user,
+            LocalDateTime dateRupture, Etat etat) {
+        this.id = id;
+        this.description = description;
+        this.dateDebut = dateDebut;
+        this.dateFin = dateFin;
+        this.user = user;
+        this.dateRupture = dateRupture;
+        this.etat = (etat != null) ? etat : Etat.SOLLICITE;
+    }
 
     public String getId() {
         return id;
