@@ -86,7 +86,7 @@ public class CongeController {
 
     @PostMapping("/add")
     public String saveConge(@ModelAttribute Conge conge) {
-        conge.setEtat(Conge.Etat.SOLLICITE);
+        conge.setEtat("SOLLICITE");
         congeService.save(conge);
         return "redirect:/home"; // Redirect to a page showing all conges or a success page
     }

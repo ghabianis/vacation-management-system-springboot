@@ -1,11 +1,12 @@
 package com.example.restservicecors.dto.user;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import java.util.Set;
 
 @Data
 @Schema(description = "User DTO")
@@ -31,6 +32,6 @@ public class UserDto {
     private String password;
 
     @NotNull
-    @Schema(description = "User roles")
-    private Set<String> roles;
+    @Schema(description = "User role")
+    private String role;
 }

@@ -86,15 +86,15 @@ AS $$
 BEGIN
   IF (new.raw_app_meta_data->>'provider' = 'email') THEN
     IF (((new.invited_at IS NOT NULL) AND (old.last_sign_in_at IS NULL))) THEN
-      INSERT INTO public."User" (id, "createdAt", "updatedAt", username, roles, "firstName", "lastName")
+      INSERT INTO public."User" (id, "createdAt", "updatedAt", username, role, "firstName", "lastName")
       VALUES (new.id::text, new.created_at, new.updated_at, new.email, ARRAY[new.role], new.raw_user_meta_data->>'firstName', new.raw_user_meta_data->>'lastName')
       ON CONFLICT (id)
-      DO UPDATE SET "createdAt" = new.created_at, "updatedAt" = new.updated_at, username = new.email, roles = ARRAY[new.role], "firstName" = new.raw_user_meta_data->>'firstName', "lastName" = new.raw_user_meta_data->>'lastName';
+      DO UPDATE SET "createdAt" = new.created_at, "updatedAt" = new.updated_at, username = new.email, role = new.role, "firstName" = new.raw_user_meta_data->>'firstName', "lastName" = new.raw_user_meta_data->>'lastName';
     ELSE
-      INSERT INTO public."User" (id, "createdAt", "updatedAt", username, roles, "firstName", "lastName")
+      INSERT INTO public."User" (id, "createdAt", "updatedAt", username, role, "firstName", "lastName")
       VALUES (new.id::text, new.created_at, new.updated_at, new.email, ARRAY[new.role], new.raw_user_meta_data->>'firstName', new.raw_user_meta_data->>'lastName')
       ON CONFLICT (id)
-      DO UPDATE SET "createdAt" = new.created_at, "updatedAt" = new.updated_at, username = new.email, roles = ARRAY[new.role], "firstName" = new.raw_user_meta_data->>'firstName', "lastName" = new.raw_user_meta_data->>'lastName';
+      DO UPDATE SET "createdAt" = new.created_at, "updatedAt" = new.updated_at, username = new.email, role = new.role, "firstName" = new.raw_user_meta_data->>'firstName', "lastName" = new.raw_user_meta_data->>'lastName';
     END IF;
   ELSE
     IF new.role = 'authenticated' THEN
@@ -102,10 +102,10 @@ BEGIN
       new.role := 'user';
       RETURN NEW;
     END IF;
-    INSERT INTO public."User" (id, "createdAt", "updatedAt", "firstName", "lastName", username, roles)
+    INSERT INTO public."User" (id, "createdAt", "updatedAt", "firstName", "lastName", username, role)
     VALUES (new.id::text, new.created_at, new.updated_at, new.raw_user_meta_data->>'firstName', new.raw_user_meta_data->>'lastName', new.email, ARRAY[new.role])
     ON CONFLICT (id)
-    DO UPDATE SET "createdAt" = new.created_at, "updatedAt" = new.updated_at, "firstName" = new.raw_user_meta_data->>'firstName', "lastName" = new.raw_user_meta_data->>'lastName', username = new.email, roles = ARRAY[new.role];
+    DO UPDATE SET "createdAt" = new.created_at, "updatedAt" = new.updated_at, "firstName" = new.raw_user_meta_data->>'firstName', "lastName" = new.raw_user_meta_data->>'lastName', username = new.email, role = new.role;
   END IF;
   RETURN NEW;
 END

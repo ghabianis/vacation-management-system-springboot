@@ -2,7 +2,6 @@ package com.example.restservicecors.serializers;
 
 import java.io.IOException;
 
-import com.example.restservicecors.models.Conge.Conge;
 import com.example.restservicecors.models.user.User;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -18,7 +17,8 @@ public class UserSerializer extends JsonSerializer<User> {
         jsonGenerator.writeStringField("firstName", user.getFirstName());
         jsonGenerator.writeStringField("lastName", user.getLastName());
         jsonGenerator.writeStringField("username", user.getUsername());
-        // Exclude password and roles for security reasons
+        jsonGenerator.writeStringField("role", user.getRole());
+        // Exclude password and role for security reasons
         jsonGenerator.writeObjectField("createdAt", user.getCreatedAt());
         jsonGenerator.writeObjectField("updatedAt", user.getUpdatedAt());
         jsonGenerator.writeObjectField("deletedAt", user.getDeletedAT());
@@ -27,4 +27,3 @@ public class UserSerializer extends JsonSerializer<User> {
         jsonGenerator.writeEndObject();
     }
 }
-

@@ -34,9 +34,7 @@ import lombok.Data;
 @Data
 @JsonSerialize(using = CongeSerializer.class)
 public class Conge {
-    public enum Etat {
-        SOLLICITE, VALIDE, REFUSE, ANNULE, EN_COURS, ARRETE, FINI
-    }
+
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -62,9 +60,8 @@ public class Conge {
     @Column(name = "\"dateRupture\"", nullable = true)
     private LocalDateTime dateRupture;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "etat", nullable = false)
-    private Etat etat;
+    private String etat;
 
     // Default constructor
     public Conge() {
@@ -72,14 +69,14 @@ public class Conge {
 
     // Parameterized constructor
     public Conge(String id, String description, LocalDateTime dateDebut, LocalDateTime dateFin, User user,
-            LocalDateTime dateRupture, Etat etat) {
+            LocalDateTime dateRupture, String etat) {
         this.id = id;
         this.description = description;
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
         this.user = user;
         this.dateRupture = dateRupture;
-        this.etat = (etat != null) ? etat : Etat.SOLLICITE;
+        this.etat = etat;
     }
 
     public String getId() {
@@ -106,7 +103,7 @@ public class Conge {
         return dateRupture;
     }
 
-    public Etat getEtat() {
+    public String getEtat() {
         return etat;
     }
 
@@ -134,7 +131,7 @@ public class Conge {
         this.dateRupture = dateRupture;
     }
 
-    public void setEtat(Etat etat) {
+    public void setEtat(String etat) {
         this.etat = etat;
     }
 

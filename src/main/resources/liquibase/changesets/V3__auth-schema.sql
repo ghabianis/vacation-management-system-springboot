@@ -7,7 +7,7 @@ create schema if not exists extensions;
 create extension if not exists "uuid-ossp"      with schema extensions;
 create extension if not exists pgcrypto         with schema extensions;
 
--- Set up auth roles for the developer
+-- Set up auth role for the developer
 create role anon                nologin noinherit;
 create role authenticated       nologin noinherit; -- "logged in" user: web_user, app_user, etc
 create role service_role        nologin noinherit bypassrls; -- allow developers to create JWT's that bypass their policies
@@ -37,7 +37,7 @@ alter default privileges for user supabase_admin in schema public grant all
 alter default privileges for user supabase_admin in schema public grant all
     on functions to postgres, anon, authenticated, service_role;
 
--- Set short statement/query timeouts for API roles
+-- Set short statement/query timeouts for API role
 alter role anon set statement_timeout = '3s';
 alter role authenticated set statement_timeout = '8s';
 
@@ -165,7 +165,7 @@ as $$
 	)::text
 $$;
 
--- usage on auth functions to API roles
+-- usage on auth functions to API role
 GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role;
 
 -- Supabase super admin

@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
         user.setDeletedAt(null);
         user.setFirstName(user.getFirstName());
         user.setLastName(user.getLastName());
-        user.setRoles(user.getRoles());
+        user.setRole(user.getRole());
         user.setPassword(user.getPassword());
         user.setUsername(user.getUsername());
         return userRepository.save(user);
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
             existingUser.setLastName(user.getLastName());
             existingUser.setUsername(user.getUsername());
             existingUser.setPassword(user.getPassword());
-            existingUser.setRoles(user.getRoles());
+            existingUser.setRole(user.getRole());
             // Save the updated user
             userRepository.save(existingUser);
         } else {

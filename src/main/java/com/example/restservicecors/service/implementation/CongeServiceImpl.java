@@ -42,13 +42,14 @@ public class CongeServiceImpl implements CongeService {
     @Override
     public Conge save(Conge conge) {
         if (conge.getEtat() == null) {
-            conge.setEtat(Conge.Etat.SOLLICITE);
+            conge.setEtat("SOLLICITE");
         }
         return congeRepository.save(conge);
     }
 
     @Override
     public Conge update(Conge conge, String id) {
+        System.out.println(conge);
         Optional<Conge> existingConge = congeRepository.findById(id);
         if (existingConge.isPresent()) {
             Conge updatedConge = existingConge.get();

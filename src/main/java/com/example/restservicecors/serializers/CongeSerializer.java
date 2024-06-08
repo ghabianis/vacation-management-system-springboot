@@ -19,7 +19,7 @@ public class CongeSerializer extends JsonSerializer<Conge> {
         jsonGenerator.writeObjectField("dateFin", conge.getDateFin());
         jsonGenerator.writeStringField("user_id", conge.getUser().getId()); // Only include the user ID
         jsonGenerator.writeObjectField("dateRupture", conge.getDateRupture());
-        jsonGenerator.writeStringField("etat", conge.getEtat().toString());
+        jsonGenerator.writeStringField("etat", conge.getEtat());
         jsonGenerator.writeEndObject();
     }
 }

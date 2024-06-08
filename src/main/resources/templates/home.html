@@ -100,68 +100,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
     </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user) {
-                document.getElementById('username').textContent = `${user.firstName} ${user.lastName}`;
-            }
-            const conges = await fetch('/api/v1/all/conges');
-            const congeList = await conges.json()
-            const leaves = []
-            for (let index = 0; index < congeList.length; index++) {
-                const congeElement = congeList[index];
-                if (congeElement.user_id === user.id) {
-                    console.log(congeElement)
-                    leaves.push(congeElement);
-                }
-
-            }
-
-            // Dummy data for leaves
-            /*        const leaves = [
-                       { id: 1, description: "Vacation", dateDebut: "2024-06-01", dateFin: "2024-06-10", etat: "SOLLICITE" },
-                       { id: 2, description: "Medical Leave", dateDebut: "2024-04-05", dateFin: "2024-04-15", etat: "VALIDE" },
-                       { id: 3, description: "Family Leave", dateDebut: "2024-02-10", dateFin: "2024-02-20", etat: "FINI" }
-                   ];
-        */
-            const leaveContainer = document.getElementById('leaveHistory');
-            leaves.forEach(leave => {
-                const card = document.createElement('div');
-                card.className = `card ${leave.etat}`;
-                card.innerHTML = `
-                    <div class="card-body">
-                        <h5 class="card-title">${leave.description}</h5>
-                        <p class="card-text">Start: ${leave.dateDebut} | End: ${leave.dateFin}</p>
-                        <p class="card-text">Status: ${leave.etat}</p>
-                        <a class="btn" href="conge/edit/${leave.id}" style="float:right"><i class="fa fa-edit" style="font-size:20px;color:red"></i></a>
-                        ${leave.etat === 'SOLLICITE' ? `<button class="btn btn-danger mr-2" onclick="cancelLeave(${leave.id})" style="float:right">Cancel</button>` : ''}
-                    </div>
-                `;
-                leaveContainer.appendChild(card);
-            });
-
-            document.getElementById('leaveFilter').addEventListener('change', filterLeaves);
-        });
-
-        function filterLeaves() {
-            const filter = document.getElementById('leaveFilter').value;
-            const cards = document.querySelectorAll('.leave-history .card');
-            cards.forEach(card => {
-                if (filter === 'ALL' || card.classList.contains(filter)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        function logout() {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("user");
-            window.location.href = "/signin";
-        }
-    </script>
 </head>
 
 <body>
@@ -190,7 +128,6 @@
             </ul>
         </div>
     </nav>
-
     <div class="container">
         <div class="center-container">
             <h1>Leave Management</h1>
@@ -198,26 +135,185 @@
         </div>
         <div class="leave-history">
             <h2>Leave History</h2>
-            <select id="leaveFilter" class="form-control mb-3">
-                <option value="ALL">All</option>
-                <option value="SOLLICITE">SOLLICITE</option>
-                <option value="VALIDE">VALIDE</option>
-                <option value="REFUSE">REFUSE</option>
-                <option value="ANNULE">ANNULE</option>
-                <option value="EN_COURS">EN_COURS</option>
-                <option value="ARRETE">ARRETE</option>
-                <option value="FINI">FINI</option>
-            </select>
-            <a class="btn btn-success" href="">+</a>
+            <div class="form-row mb-3">
+                <div class="col">
+                    <select id="leaveFilter" class="form-control">
+                        <option value="ALL">All</option>
+                        <option value="SOLLICITE">SOLLICITE</option>
+                        <option value="VALIDE">VALIDE</option>
+                        <option value="REFUSE">REFUSE</option>
+                        <option value="ANNULE">ANNULE</option>
+                        <option value="EN_COURS">EN_COURS</option>
+                        <option value="ARRETE">ARRETE</option>
+                        <option value="FINI">FINI</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <select id="yearFilter" class="form-control">
+                        <option value="ALL">All Years</option>
+                        <!-- Dynamically add years -->
+                    </select>
+                </div>
+            </div>
+            <a class="btn btn-success" href="/conge/add/form">+</a>
             <div id="leaveHistory"></div>
         </div>
     </div>
-
     <footer>
         <p>&copy; 2024 Anis Ghabi. All rights reserved.</p>
     </footer>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function cancelLeave(id) {
+            const filterValue = selectElement.value;
+            alert("done");
+            await fetch(`/api/v1/auth/delete/${leave.id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ etat: filterValue, dateDebut: leave.dateDebut, dateFin: leave.dateFin, user_id: leave.user_id, description: leave.description }),
+            });
+
+        }
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('username').textContent = `${user.firstName} ${user.lastName}`;
+                console.log(user.role);
+            }
+
+            const congesResponse = await fetch('/api/v1/all/conges');
+            const congeList = await congesResponse.json();
+            const leaves = [];
+            const years = new Set();
+
+            for (let congeElement of congeList) {
+                if (congeElement.user_id === user.id || user.role === 'admin') {
+                    leaves.push(congeElement);
+                    const year = new Date(congeElement.dateDebut).getFullYear();
+                    years.add(year);
+                }
+            }
+
+
+
+            populateYearFilter(Array.from(years));
+
+            const leaveContainer = document.getElementById('leaveHistory');
+            const userRole = user.role;
+
+            leaves.sort((a, b) => new Date(b.dateDebut) - new Date(a.dateDebut)).forEach(leave => {
+                const card = document.createElement('div');
+                card.className = `card ${leave.etat}`;
+                card.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">${leave.description}</h5>
+                        <p class="card-text">Start: ${leave.dateDebut} | End: ${leave.dateFin}</p>
+                        <p class="card-text">Status: ${leave.etat}</p>
+                        <a class="btn" href="conge/edit/${leave.id}" style="float:right"><i class="fa fa-edit" style="font-size:20px;color:red"></i></a>
+                        ${leave.etat === 'SOLLICITE' ? `<button class="btn btn-danger mr-2" onclick="cancelLeave(${leave.id})" style="float:right">Cancel</button>` : ''}
+                    </div>
+                `;
+
+                if (userRole === 'admin') {
+                    const adminDropdown = createAdminDropdown(leave);
+                    card.querySelector('.card-body').appendChild(adminDropdown);
+                }
+
+                leaveContainer.appendChild(card);
+            });
+
+            document.getElementById('leaveFilter').addEventListener('change', filterLeaves);
+            document.getElementById('yearFilter').addEventListener('change', filterLeaves);
+        });
+
+        function Cancel(id) {
+
+        }
+        function createAdminDropdown(leave) {
+            const selectElement = document.createElement('select');
+            selectElement.id = `leaveFilter-${leave.id}`;
+
+            const adminOptions = [
+                { value: 'ALL', text: 'All' },
+                { value: 'SOLLICITE', text: 'SOLLICITE' },
+                { value: 'VALIDE', text: 'VALIDE' },
+                { value: 'REFUSE', text: 'REFUSE' },
+                { value: 'ANNULE', text: 'ANNULE' },
+                { value: 'EN_COURS', text: 'EN_COURS' },
+                { value: 'ARRETE', text: 'ARRETE' },
+                { value: 'FINI', text: 'FINI' }
+            ];
+
+            adminOptions.forEach(option => {
+                if (
+                    (leave.etat === 'SOLLICITE' && (option.value === 'VALIDE' || option.value === 'REFUSE')) ||
+                    (leave.etat === 'VALIDE' && option.value === 'REFUSE') ||
+                    (leave.etat === 'EN_COURS' && option.value === 'ARRETE') ||
+                    leave.etat !== 'SOLLICITE'
+                ) {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.text;
+                    selectElement.appendChild(opt);
+                }
+            });
+
+            selectElement.addEventListener('change', async () => {
+                const filterValue = selectElement.value;
+                alert("done");
+                await fetch(`/api/v1/auth/edit/${leave.id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ etat: filterValue, dateDebut: leave.dateDebut, dateFin: leave.dateFin, user_id: leave.user_id, description: leave.description }),
+                });
+            });
+
+            return selectElement;
+        }
+
+        function populateYearFilter(years) {
+            const yearFilter = document.getElementById('yearFilter');
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+        }
+
+        function filterLeaves() {
+            const statusFilter = document.getElementById('leaveFilter').value;
+            const yearFilter = document.getElementById('yearFilter').value;
+            const cards = document.querySelectorAll('.leave-history .card');
+
+            cards.forEach(card => {
+                const leaveStartDate = card.querySelector('.card-text:nth-of-type(1)').textContent.split(' ')[1];
+                const leaveYear = new Date(leaveStartDate).getFullYear();
+
+                if (
+                    (statusFilter === 'ALL' || card.classList.contains(statusFilter)) &&
+                    (yearFilter === 'ALL' || leaveYear == yearFilter)
+                ) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+
+
+        function logout() {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("user");
+            window.location.href = "/signin";
+        }
+    </script>
 </body>
 
 </html>

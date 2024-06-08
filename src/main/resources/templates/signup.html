@@ -121,6 +121,17 @@
                     <span class="password-toggle" onclick="togglePasswordVisibility()">&#128065;</span>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="role">Role:</label>
+                <div class="form-select form-select-lg mb-3">
+                    <select id="role" class="form-select form-select-lg mb-3" name="role">
+                        <optgroup>
+                            <option value="employee">employee</option>
+                            <option value="admin">admin</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
             <button type="button" class="btn-submit" onclick="submitSignUpForm()">Sign Up</button>
             <a href="/signin" class="login-link">Already have an account? Login</a>
         </form>
@@ -146,7 +157,8 @@
                 firstName: document.getElementById("firstName").value,
                 lastName: document.getElementById("lastName").value,
                 email: document.getElementById("email").value,
-                password: document.getElementById("password").value
+                password: document.getElementById("password").value,
+                role: document.getElementById("role").value
             };
 
             fetch('/api/v1/auth/signup', {
@@ -168,6 +180,7 @@
                     if (data.access_token) {
                         // store access token in local storage
                         localStorage.setItem('accessToken', data.access_token);
+                        console.log(data.user)
                         localStorage.setItem('user', JSON.stringify(data.user));
                         window.location.href = "/home"
                         // redirect or do something else to handle successful signup

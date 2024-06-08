@@ -57,8 +57,8 @@ public class User {
     @Unique
     private String code;
 
-    @Column(name = "roles", columnDefinition = "VARCHAR(255)[]")
-    private Set<String> roles;
+    @Column(name = "role", columnDefinition = "VARCHAR(255)")
+    private String role;
 
     @CreationTimestamp
     @Column(name = "\"createdAt\"", nullable = false, updatable = false)
@@ -106,8 +106,8 @@ public class User {
         return password;
     }
 
-    public Set<String> getRoles() {
-        return roles;
+    public String getRole() {
+        return role;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -147,7 +147,7 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", code='" + code + '\'' +
-                ", roles=" + roles +
+                ", role=" + role +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", deletedAt=" + deletedAt +

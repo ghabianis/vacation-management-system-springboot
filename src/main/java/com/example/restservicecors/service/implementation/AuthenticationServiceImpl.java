@@ -33,19 +33,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public JwtAuthenticationResponse signup(SignUpRequest request) {
         // Step 1: Insert user information into auth.users table
         LocalDateTime currentDate = LocalDateTime.now();
-        String role = "user";
 
         AuthUser user = AuthUser.builder()
                 .email(request.getEmail())
                 .encrypted_password(passwordEncoder.encode(request.getPassword()))
-                .role(role)
+                .role(request.getRole())
                 .build();
+        System.out.println(request.getRole());
         authUserRespository.save(user);
         User existingUser = userRepository.findByUsername(request.getEmail());
         if (existingUser != null) {
             // Update existing user with first name and last name
             existingUser.setFirstName(request.getFirstName());
             existingUser.setLastName(request.getLastName());
+            existingUser.setRole(user.getRole());
             existingUser.setPassword(user.getEncrypted_password());
             existingUser.setCreatedAt(currentDate);
             userRepository.save(existingUser);

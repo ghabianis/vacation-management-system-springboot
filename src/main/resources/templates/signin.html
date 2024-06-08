@@ -160,7 +160,7 @@
                         // store access token in local storage
                         localStorage.setItem('accessToken', data.access_token);
                         localStorage.setItem('user', JSON.stringify(data.user));
-                        if (data.user.roles === 'admin') {
+                        if (data.user.role === 'admin') {
                             window.location.href = "/hello"
                         }
                         window.location.href = "/home"
